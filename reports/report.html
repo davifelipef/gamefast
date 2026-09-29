@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GameFast — Relatório de Performance</title>
+
+  <style>
+    :root {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #e8e8ef;
+      background: #0d0d12;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(circle at top right, rgba(111, 76, 255, 0.16), transparent 35%),
+        #0d0d12;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid #24242d;
+      background: rgba(13, 13, 18, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .header-content {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .logo span {
+      color: #8b6cff;
+    }
+
+    .header-label {
+      color: #92929f;
+      font-size: 0.85rem;
+    }
+
+    main {
+      padding: 48px 0 64px;
+    }
+
+    .intro {
+      margin-bottom: 32px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 8px;
+      color: #9a83ff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+    }
+
+    h1 {
+      margin: 0;
+      color: #fff;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.05em;
+    }
+
+    .intro p {
+      max-width: 700px;
+      margin: 14px 0 0;
+      color: #9999a6;
+      line-height: 1.7;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 8px 12px;
+      border: 1px solid #214d35;
+      border-radius: 999px;
+      background: #122419;
+      color: #72d99a;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #48c77a;
+    }
+
+    .status.error {
+      border-color: #5a2727;
+      background: #291414;
+      color: #ff8888;
+    }
+
+    .status.error::before {
+      background: #ff5555;
+    }
+
+    .section {
+      margin-top: 36px;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      color: #fff;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      padding: 20px;
+      border: 1px solid #25252f;
+      border-radius: 14px;
+      background: #15151c;
+    }
+
+    .card-label {
+      color: #888895;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-value {
+      margin-top: 8px;
+      color: #fff;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .card-description {
+      margin-top: 5px;
+      color: #777783;
+      font-size: 0.8rem;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .metric-card {
+      padding: 20px;
+      border: 1px solid #25252f;
+      border-radius: 14px;
+      background: #15151c;
+    }
+
+    .metric-card h3 {
+      margin: 0 0 16px;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .metric-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 12px;
+      border-radius: 10px;
+      background: #101017;
+    }
+
+    .metric-label {
+      display: block;
+      color: #777783;
+      font-size: 0.75rem;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 4px;
+      color: #e9e6ff;
+      font-size: 1.05rem;
+      font-weight: 750;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid #25252f;
+      border-radius: 14px;
+      background: #15151c;
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #25252f;
+      text-align: left;
+    }
+
+    th {
+      color: #8e8e9b;
+      background: #111118;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      color: #d4d4dc;
+      font-size: 0.9rem;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .endpoint {
+      color: #b9aaff;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+
+    .success {
+      color: #6edb96;
+      font-weight: 700;
+    }
+
+    .response-good {
+      color: #6edb96;
+      font-weight: 700;
+    }
+
+    .response-warning {
+      color: #ffd166;
+      font-weight: 700;
+    }
+
+    .response-bad {
+      color: #ff8585;
+      font-weight: 700;
+    }
+
+    .explanation {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .explanation-card {
+      padding: 20px;
+      border: 1px solid #25252f;
+      border-radius: 14px;
+      background: #15151c;
+    }
+
+    .explanation-card h3 {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .explanation-card p {
+      margin: 0;
+      color: #92929f;
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    footer {
+      padding: 24px 0;
+      border-top: 1px solid #24242d;
+      color: #666673;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .loading,
+    .error-message {
+      padding: 32px;
+      border: 1px solid #25252f;
+      border-radius: 14px;
+      background: #15151c;
+      color: #9999a6;
+      text-align: center;
+    }
+
+    .error-message {
+      border-color: #5a2727;
+      color: #ff9999;
+    }
+
+    @media (min-width: 600px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .explanation {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .cards {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">Game<span>Fast</span></div>
+      <div class="header-label">Relatório de teste de carga</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div id="content">
+        <div class="loading">
+          Carregando relatório...
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    GameFast — Relatório gerado a partir do Artillery
+  </footer>
+
+  <script>
+    const content = document.querySelector('#content')
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat('pt-BR').format(value)
+    }
+
+    function formatDecimal(value) {
+      return new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }).format(value)
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) {
+        return `${formatNumber(bytes)} B`
+      }
+
+      if (bytes < 1024 * 1024) {
+        return `${formatDecimal(bytes / 1024)} KB`
+      }
+
+      if (bytes < 1024 * 1024 * 1024) {
+        return `${formatDecimal(bytes / 1024 / 1024)} MB`
+      }
+
+      return `${formatDecimal(bytes / 1024 / 1024 / 1024)} GB`
+    }
+
+    function formatDuration(start, end) {
+      const seconds = Math.max(0, (end - start) / 1000)
+
+      if (seconds < 60) {
+        return `${formatDecimal(seconds)} s`
+      }
+
+      const minutes = Math.floor(seconds / 60)
+      const remainingSeconds = Math.round(seconds % 60)
+
+      return `${minutes} min ${remainingSeconds} s`
+    }
+
+    function responseClass(value) {
+      if (value <= 100) {
+        return 'response-good'
+      }
+
+      if (value <= 300) {
+        return 'response-warning'
+      }
+
+      return 'response-bad'
+    }
+
+    function endpointName(key) {
+      return key
+        .replace('plugins.metrics-by-endpoint.response_time.', '')
+    }
+
+    function createEndpointRows(summaries) {
+      const endpoints = Object.entries(summaries)
+        .filter(([key]) =>
+          key.startsWith('plugins.metrics-by-endpoint.response_time.')
+        )
+        .map(([key, value]) => ({
+          endpoint: endpointName(key),
+          ...value,
+        }))
+
+      return endpoints
+        .map(item => `
+          <tr>
+            <td class="endpoint">${item.endpoint}</td>
+            <td>${formatNumber(item.count)}</td>
+            <td>${formatDecimal(item.mean)} ms</td>
+            <td>${formatDecimal(item.p50)} ms</td>
+            <td>${formatDecimal(item.p90)} ms</td>
+            <td>${formatDecimal(item.p95)} ms</td>
+            <td class="${responseClass(item.p99)}">
+              ${formatDecimal(item.p99)} ms
+            </td>
+            <td>${formatDecimal(item.max)} ms</td>
+          </tr>
+        `)
+        .join('')
+    }
+
+    function renderReport(report) {
+      const aggregate = report.aggregate
+      const counters = aggregate.counters
+      const summaries = aggregate.summaries
+      const responseTime = summaries['http.response_time']
+
+      const start = aggregate.firstCounterAt
+      const end = aggregate.lastCounterAt
+
+      const users = counters['vusers.created'] || 0
+      const completed = counters['vusers.completed'] || 0
+      const failed = counters['vusers.failed'] || 0
+
+      const requests = counters['http.requests'] || 0
+      const responses = counters['http.responses'] || 0
+      const successfulResponses = counters['http.codes.200'] || 0
+      const requestRate = aggregate.rates['http.request_rate'] || 0
+      const downloadedBytes = counters['http.downloaded_bytes'] || 0
+
+      const successRate = responses > 0
+        ? (successfulResponses / responses) * 100
+        : 0
+
+      const failureRate = responses > 0
+        ? ((responses - successfulResponses) / responses) * 100
+        : 0
+
+      content.innerHTML = `
+        <section class="intro">
+          <span class="eyebrow">PERFORMANCE REPORT</span>
+
+          <h1>Teste de carga da GameFast</h1>
+
+          <p>
+            Visualização dos resultados obtidos durante o teste de carga
+            realizado com o Artillery.
+          </p>
+
+          <div class="status ${failed > 0 || failureRate > 0 ? 'error' : ''}">
+            ${
+              failed > 0 || failureRate > 0
+                ? 'Foram identificadas falhas durante o teste'
+                : 'Teste concluído sem falhas'
+            }
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">Resumo do teste</h2>
+
+          <div class="cards">
+            <div class="card">
+              <div class="card-label">Usuários virtuais</div>
+              <div class="card-value">${formatNumber(users)}</div>
+              <div class="card-description">
+                usuários iniciados
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Requisições</div>
+              <div class="card-value">${formatNumber(requests)}</div>
+              <div class="card-description">
+                requisições HTTP
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Sucesso</div>
+              <div class="card-value">${formatDecimal(successRate)}%</div>
+              <div class="card-description">
+                respostas HTTP 200
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Taxa de requisições</div>
+              <div class="card-value">${formatDecimal(requestRate)}</div>
+              <div class="card-description">
+                requisições por segundo
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">Latência das respostas</h2>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <h3>Tempo de resposta</h3>
+
+              <div class="metric-list">
+                <div class="metric">
+                  <span class="metric-label">Mínimo</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.min)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">Média</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.mean)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">Máximo</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.max)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">Mediana</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.median)} ms
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <h3>Percentis</h3>
+
+              <div class="metric-list">
+                <div class="metric">
+                  <span class="metric-label">P50</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.p50)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">P75</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.p75)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">P90</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.p90)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">P95</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.p95)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">P99</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.p99)} ms
+                  </span>
+                </div>
+
+                <div class="metric">
+                  <span class="metric-label">P99.9</span>
+                  <span class="metric-value">
+                    ${formatDecimal(responseTime.p999)} ms
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">Endpoints testados</h2>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Endpoint</th>
+                  <th>Req.</th>
+                  <th>Média</th>
+                  <th>P50</th>
+                  <th>P90</th>
+                  <th>P95</th>
+                  <th>P99</th>
+                  <th>Máximo</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                ${createEndpointRows(summaries)}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">Outras informações</h2>
+
+          <div class="cards">
+            <div class="card">
+              <div class="card-label">Usuários concluídos</div>
+              <div class="card-value">${formatNumber(completed)}</div>
+              <div class="card-description">
+                sessões finalizadas
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Falhas</div>
+              <div class="card-value">${formatNumber(failed)}</div>
+              <div class="card-description">
+                usuários que falharam
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Dados transferidos</div>
+              <div class="card-value">${formatBytes(downloadedBytes)}</div>
+              <div class="card-description">
+                dados recebidos pelo teste
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-label">Duração</div>
+              <div class="card-value">
+                ${formatDuration(start, end)}
+              </div>
+              <div class="card-description">
+                período registrado
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">Como interpretar</h2>
+
+          <div class="explanation">
+            <div class="explanation-card">
+              <h3>Tempo de resposta</h3>
+              <p>
+                Indica quanto tempo a aplicação levou para responder
+                a uma requisição. Quanto maior o tempo, maior a espera
+                enfrentada pelo cliente.
+              </p>
+            </div>
+
+            <div class="explanation-card">
+              <h3>P95 e P99</h3>
+              <p>
+                Os percentis mostram o comportamento das respostas mais
+                lentas. O P95, por exemplo, indica um valor abaixo do qual
+                ficaram aproximadamente 95% das respostas.
+              </p>
+            </div>
+
+            <div class="explanation-card">
+              <h3>Taxa de requisições</h3>
+              <p>
+                Representa aproximadamente quantas requisições HTTP
+                foram processadas por segundo durante o teste.
+              </p>
+            </div>
+
+            <div class="explanation-card">
+              <h3>Taxa de sucesso</h3>
+              <p>
+                Mostra a proporção de respostas HTTP 200 em relação
+                às respostas registradas. Erros HTTP devem ser analisados
+                junto com a latência e a carga utilizada.
+              </p>
+            </div>
+          </div>
+        </section>
+      `
+    }
+
+    async function loadReport() {
+      try {
+        const response = await fetch('./load-test.json', {
+          cache: 'no-store'
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
+        }
+
+        const report = await response.json()
+
+        renderReport(report)
+      } catch (error) {
+        content.innerHTML = `
+          <div class="error-message">
+            <strong>Não foi possível carregar o relatório.</strong>
+            <p>
+              Verifique se o arquivo
+              <code>load-test.json</code>
+              está na mesma pasta deste relatório.
+            </p>
+            <p>
+              Erro: ${error.message}
+            </p>
+          </div>
+        `
+      }
+    }
+
+    loadReport()
+  </script>
+</body>
+</html>

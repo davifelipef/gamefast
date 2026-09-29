@@ -1,0 +1,51 @@
+config:
+  # Endereço da aplicação que será testada.
+  target: "http://localhost:5173"
+
+  phases:
+    # Duração da fase de teste, em segundos.
+    - duration: 30
+
+      # Quantos novos usuários virtuais serão iniciados por segundo.
+      # Aumente este valor para aumentar a carga.
+      #
+      # Exemplos:
+      # 2  = carga baixa
+      # 10 = carga moderada
+      # 25 = carga alta
+      arrivalRate: 10
+
+      # Nome utilizado para identificar esta fase no relatório.
+      name: "Teste de carga"
+
+scenarios:
+  # Cada usuário virtual executará este cenário.
+  - name: "Navegação pela loja"
+
+    flow:
+      # Acessa a página inicial.
+      - get:
+          url: "/"
+
+      # Carrega o banner principal.
+      - get:
+          url: "/images/site-banner.jpg"
+
+      # Carrega as capas dos jogos.
+      - get:
+          url: "/images/cyber-nexus.jpg"
+
+      - get:
+          url: "/images/shadow-protocol.jpg"
+
+      - get:
+          url: "/images/galaxy-raiders.jpg"
+
+      - get:
+          url: "/images/kingdoms-of-ash.jpg"
+
+      - get:
+          url: "/images/neon-velocity.jpg"
+
+      - get:
+          url: "/images/monster-frontier.jpg"
