@@ -13,7 +13,7 @@ config:
       # 2  = carga baixa
       # 10 = carga moderada
       # 25 = carga alta
-      arrivalRate: 10
+      arrivalRate: 2
 
       # Nome utilizado para identificar esta fase no relatório.
       name: "Teste de carga"
